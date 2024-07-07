@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "97184123296",
+    "project_id": "forced-social",
+    "storage_bucket": "forced-social.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97184123296:android:e2c591fd6271c588cbbcc5",
+        "android_client_info": {
+          "package_name": "com.example.forcedsocial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJRMxERMrg3kZW5Pf16QvOnlcbhfEAr54"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
