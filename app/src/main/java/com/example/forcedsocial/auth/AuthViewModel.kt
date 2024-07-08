@@ -1,56 +1,27 @@
 package com.example.forcedsocial.auth
 
+import AuthRepository
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
 class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
-    fun signInWithEmail(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        viewModelScope.launch {
-            try {
-                repository.signInWithEmail(email, password)
-                onSuccess()
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
-
-    fun signUpWithEmail(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        viewModelScope.launch {
-            try {
-                repository.signUpWithEmail(email, password)
-                onSuccess()
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
-
-    fun signInWithGoogle(idToken: String, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
-        viewModelScope.launch {
-            try {
-                repository.signInWithGoogle(idToken)
-                onSuccess()
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
+    val currentUser get() = repository.currentUser
 
     fun signOut() {
-        repository.signOut()
+        viewModelScope.launch {
+            repository.signOut()
+        }
     }
+}
 
-    fun getCurrentUser() = repository.getCurrentUser()
+class AuthViewModelFactory(private val repository: AuthRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return AuthViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }

@@ -1,28 +1,14 @@
-package com.example.forcedsocial.auth
-
+import android.app.Activity
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.coroutines.tasks.await
 
-class AuthRepository {
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+class AuthRepository(private val auth: FirebaseAuth) {
 
-    suspend fun signInWithEmail(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password).await()
-    }
-
-    suspend fun signUpWithEmail(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password).await()
-    }
-
-    suspend fun signInWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential).await()
-    }
+    val currentUser = auth.currentUser
 
     fun signOut() {
         auth.signOut()
     }
-
-    fun getCurrentUser() = auth.currentUser
 }
