@@ -5,13 +5,22 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -49,7 +58,16 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(viewModel: AuthViewModel) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "auth") {
+    LaunchedEffect(viewModel.currentUser) {
+        if (viewModel.currentUser != null) {
+            navController.navigate("posts") {
+                popUpTo("home") { inclusive = true }
+            }
+        }
+    }
+
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") { HomeScreen(navController) }
         composable("auth") { AuthScreen(viewModel, navController) }
         composable("posts") { PostListScreen(navController, viewModel) }
         composable("search") { SearchScreen(viewModel, navController) }
@@ -58,19 +76,42 @@ fun MainScreen(viewModel: AuthViewModel) {
     }
 }
 
-
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun HomeScreen(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Welcome to ForcedSocial",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+        Button(
+            onClick = { navController.navigate("auth") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Text(text = "Sign in")
+        }
+        Button(
+            onClick = { navController.navigate("posts") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Continue without signing in")
+        }
+    }
 }
+
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun HomeScreenPreview() {
     ForcedSocialTheme {
-        Greeting("Android")
+        HomeScreen(rememberNavController())
     }
 }

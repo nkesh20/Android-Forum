@@ -43,7 +43,7 @@ fun BottomNavigationLayout(
             BottomNavButton("Profile", Icons.Default.Person) { navController.navigate("profile") }
             BottomNavButton("Sign Out", Icons.Default.ExitToApp) {
                 authViewModel.signOut()
-                navController.navigate("auth") {
+                navController.navigate("home") {
                     popUpTo(navController.graph.startDestinationId) {
                         inclusive = true
                     }
