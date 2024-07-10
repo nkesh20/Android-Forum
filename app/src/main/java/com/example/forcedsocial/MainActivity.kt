@@ -18,6 +18,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.forcedsocial.auth.AuthScreen
 import com.example.forcedsocial.auth.AuthViewModel
 import com.example.forcedsocial.auth.AuthViewModelFactory
+import com.example.forcedsocial.screens.CreatePostScreen
+import com.example.forcedsocial.screens.ProfileScreen
+import com.example.forcedsocial.screens.PostListScreen
+import com.example.forcedsocial.screens.SearchScreen
 import com.example.forcedsocial.ui.theme.ForcedSocialTheme
 import com.google.firebase.auth.FirebaseAuth
 
@@ -47,7 +51,10 @@ fun MainScreen(viewModel: AuthViewModel) {
 
     NavHost(navController = navController, startDestination = "auth") {
         composable("auth") { AuthScreen(viewModel, navController) }
-        composable("home") { Greeting("User") }
+        composable("posts") { PostListScreen(navController, viewModel) }
+        composable("search") { SearchScreen(viewModel, navController) }
+        composable("profile") { ProfileScreen(viewModel, navController) }
+        composable("createPost") { CreatePostScreen(navController, viewModel) }
     }
 }
 
