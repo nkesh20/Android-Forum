@@ -76,7 +76,8 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                                 userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(
                                     user.value?.profilePictureUrl
                                 ) else null,
-                                postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null
+                                postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null,
+                                onClick = {}
                             )
                         }
                     }

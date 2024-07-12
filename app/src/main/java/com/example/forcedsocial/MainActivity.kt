@@ -33,6 +33,7 @@ import com.example.forcedsocial.auth.AuthViewModel
 import com.example.forcedsocial.auth.AuthViewModelFactory
 import com.example.forcedsocial.screens.CreatePostScreen
 import com.example.forcedsocial.screens.CreateTopicScreen
+import com.example.forcedsocial.screens.PostDiscussion
 import com.example.forcedsocial.screens.ProfileScreen
 import com.example.forcedsocial.screens.PostListScreen
 import com.example.forcedsocial.screens.SearchScreen
@@ -112,6 +113,22 @@ fun MainScreen(viewModel: AuthViewModel) {
         ) { backStackEntry ->
             val parentTopicId = backStackEntry.arguments?.getString("parentTopicId") ?: ""
             CreateTopicScreen(navController, viewModel, parentTopicId)
+        }
+        composable(
+            route = "postDiscussion?postId={postId}",
+            arguments = listOf(
+                navArgument(name = "postId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId") ?: ""
+            PostDiscussion(
+                postId = postId,
+                navController = navController,
+                authViewModel = viewModel
+            )
         }
     }
 }

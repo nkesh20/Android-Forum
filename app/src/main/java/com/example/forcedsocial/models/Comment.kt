@@ -11,4 +11,6 @@ data class Comment(
     val content: String,
     val imageUrl: String? = null,
     var timestamp: Timestamp? = null
-)
+) {
+    constructor() : this("", "", "", "", null, null)
+}

@@ -126,6 +126,8 @@ class PostViewModel : ViewModel() {
         }
     }
 
+    fun getPostById(postId: String) = db.collection("posts").document(postId).get()
+
     fun deletePost(postId: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
