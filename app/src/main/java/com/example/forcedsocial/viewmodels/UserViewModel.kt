@@ -27,12 +27,14 @@ class UserViewModel : ViewModel() {
         displayName: String,
         profilePictureUri: Uri?,
         oldProfilePictureUri: Uri?,
+        accountType: User.AccountType,
         context: Context
     ) {
         val userId = auth.currentUser?.uid ?: return
 
         if (profilePictureUri == null || profilePictureUri.toString() == oldProfilePictureUri?.toString()) {
-            val user = User(userId, username, displayName, profilePictureUri?.toString())
+            val user =
+                User(userId, username, displayName, profilePictureUri?.toString(), accountType)
 
             viewModelScope.launch {
                 db.collection("users").document(userId).set(user)
@@ -53,7 +55,7 @@ class UserViewModel : ViewModel() {
         val uploadTask = profilePictureUri.let { spaceRef.putFile(it) }
 
         uploadTask.addOnFailureListener {
-            val user = User(userId, username, displayName, null)
+            val user = User(userId, username, displayName, null, accountType)
 
             viewModelScope.launch {
                 db.collection("users").document(userId).set(user)
@@ -67,7 +69,7 @@ class UserViewModel : ViewModel() {
             spaceRef.downloadUrl.addOnSuccessListener {
                 val imageDownloadUrl = it.toString()
                 Log.i("Image url", imageDownloadUrl)
-                val user = User(userId, username, displayName, imageDownloadUrl)
+                val user = User(userId, username, displayName, imageDownloadUrl, accountType)
 
                 viewModelScope.launch {
                     db.collection("users").document(userId).set(user)
@@ -78,7 +80,7 @@ class UserViewModel : ViewModel() {
                     Toast.LENGTH_SHORT
                 ).show()
             }.addOnFailureListener {
-                val user = User(userId, username, displayName, null)
+                val user = User(userId, username, displayName, null, accountType)
 
                 viewModelScope.launch {
                     db.collection("users").document(userId).set(user)

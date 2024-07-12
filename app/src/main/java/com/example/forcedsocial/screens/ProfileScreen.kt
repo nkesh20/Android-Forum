@@ -33,12 +33,8 @@ private fun getImageUri(imageUriString: String?): Uri? {
 fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
     val userViewModel: UserViewModel = viewModel()
     val user = FirebaseAuth.getInstance().currentUser
-    val username = remember { mutableStateOf(user?.email ?: "") }
-    val displayName = remember { mutableStateOf(user?.displayName ?: "") }
-
     val userData = remember { mutableStateOf<User?>(null) }
     val imageUri = remember { mutableStateOf(user?.photoUrl) }
-    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         if (user != null) {
@@ -48,6 +44,12 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
             }
         }
     }
+
+    var username = userData.value?.username ?: ""
+    var displayName = userData.value?.displayName ?: ""
+
+    val context = LocalContext.current
+
 
     Log.i("USER_INFO", "${userData.value?.username}")
     Log.i("USER_INFO", "${userData.value?.displayName}")
@@ -70,16 +72,16 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
 
                     InputTextField(
                         label = "Username",
-                        prefill = userData.value?.username?: "",
-                        onTextChange = { username.value = it }
+                        prefill = userData.value?.username ?: "",
+                        onTextChange = { username = it }
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     InputTextField(
                         label = "Display Name",
-                        prefill = userData.value?.displayName?: "",
-                        onTextChange = { displayName.value = it }
+                        prefill = userData.value?.displayName ?: "",
+                        onTextChange = { displayName = it }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -87,11 +89,13 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
                     Button(
                         onClick = {
                             userViewModel.createUserProfile(
-                                username.value,
-                                displayName.value,
+                                username,
+                                displayName,
                                 imageUri.value,
                                 getImageUri(userData.value?.profilePictureUrl),
-                                context)
+                                userData.value?.accountType ?: User.AccountType.USER,
+                                context,
+                            )
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
