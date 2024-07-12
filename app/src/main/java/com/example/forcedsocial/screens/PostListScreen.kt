@@ -4,20 +4,26 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.example.forcedsocial.auth.AuthViewModel
+import com.example.forcedsocial.components.PostCard
 import com.example.forcedsocial.models.Post
+import com.example.forcedsocial.models.User
 import com.example.forcedsocial.viewmodels.RealTimeViewModel
+import com.example.forcedsocial.viewmodels.UserViewModel
 
 @Composable
 fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
+    val userViewModel: UserViewModel = viewModel()
     val realTimeUpdatesViewModel: RealTimeViewModel = viewModel()
     val posts = remember { mutableStateListOf<Post>() }
 
@@ -28,30 +34,50 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
         })
     }
 
-    LazyColumn {
-        item {
-            BottomNavigationLayout(navController, authViewModel) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        posts.forEach { post ->
-                            Text(text = post.content, modifier = Modifier.padding(8.dp))
-                            if (!post.imageUrl.isNullOrEmpty()) {
-                                Log.i("Post List screen", post.imageUrl)
-                                AsyncImage(model = Uri.parse(post.imageUrl), contentDescription = "Image", modifier = Modifier.size(200.dp))
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn {
+            item {
+                BottomNavigationLayout(navController, authViewModel) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            posts.forEach { post ->
+                                val userId = post.userId
+                                val user = remember {
+                                    mutableStateOf<User?>(null)
+                                }
+
+                                userViewModel.getUserProfile(userId).addOnSuccessListener {
+                                    user.value = it.toObject(User::class.java)
+                                }.addOnFailureListener {
+                                    Log.e("Post User", "Error while getting User from post")
+                                }
+
+                                PostCard(
+                                    userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName?: "" else post.userId,
+                                    postText = post.content,
+                                    userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(user.value?.profilePictureUrl) else null,
+                                    postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null
+                                )
                             }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { navController.navigate("createPost") }) {
-                            Text(text = "Create Post")
                         }
                     }
                 }
             }
+        }
+
+        FloatingActionButton(
+            onClick = { navController.navigate("createPost") },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .offset(0.dp, (-70).dp)
+        ) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
         }
     }
 }

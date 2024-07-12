@@ -11,6 +11,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,6 +22,10 @@ import androidx.compose.ui.unit.dp
 fun InputTextField(label: String, prefill: String = "", iconVector: ImageVector? = null, onTextChange: (String) -> Unit) {
     val text = remember {
         mutableStateOf(prefill)
+    }
+
+    LaunchedEffect(prefill) {
+        text.value = prefill
     }
 
     OutlinedTextField(

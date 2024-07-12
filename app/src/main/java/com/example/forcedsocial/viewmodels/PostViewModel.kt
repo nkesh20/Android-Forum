@@ -1,7 +1,8 @@
 package com.example.forcedsocial.viewmodels
 
+import android.content.Context
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.forcedsocial.models.Post
@@ -21,7 +22,7 @@ class PostViewModel : ViewModel() {
     private var lastVisiblePost: DocumentSnapshot? = null
     private var lastVisiblePostByTopic: MutableMap<String, DocumentSnapshot?> = mutableMapOf()
 
-    fun createPost(userId: String, content: String, imageUri: Uri?, topicId: String) {
+    fun createPost(userId: String, content: String, imageUri: Uri?, topicId: String, context: Context) {
         if (content.isEmpty()) {
             return
         }
@@ -41,6 +42,11 @@ class PostViewModel : ViewModel() {
                 }
             }
 
+            Toast.makeText(
+                context,
+                "Successfully posted!",
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -54,7 +60,11 @@ class PostViewModel : ViewModel() {
         val uploadTask = imageUri.let { spaceRef.putFile(it) }
 
         uploadTask.addOnFailureListener {
-            Log.e("Post creation", "Post creation failed")
+            Toast.makeText(
+                context,
+                "Post creation failed, please try again",
+                Toast.LENGTH_SHORT
+            ).show()
         }.addOnSuccessListener {
             spaceRef.downloadUrl.addOnSuccessListener {
                 val imageUrl = it.toString()
@@ -71,8 +81,17 @@ class PostViewModel : ViewModel() {
                         db.collection("posts").add(post).await()
                     }
                 }
+                Toast.makeText(
+                    context,
+                    "Successfully posted!",
+                    Toast.LENGTH_SHORT
+                ).show()
             }.addOnFailureListener {
-                Log.e("Post creation", "Post creation failed")
+                Toast.makeText(
+                    context,
+                    "Post creation failed, please try again",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 

@@ -1,6 +1,7 @@
 package com.example.forcedsocial.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
@@ -10,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -20,6 +22,13 @@ import com.example.forcedsocial.models.User
 import com.example.forcedsocial.viewmodels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
+private fun getImageUri(imageUriString: String?): Uri? {
+    if (imageUriString == null)
+        return null
+
+    return Uri.parse(imageUriString)
+}
+
 @Composable
 fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
     val userViewModel: UserViewModel = viewModel()
@@ -29,15 +38,19 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
 
     val userData = remember { mutableStateOf<User?>(null) }
     val imageUri = remember { mutableStateOf(user?.photoUrl) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         if (user != null) {
             userViewModel.getUserProfile(user.uid).addOnSuccessListener {
                 userData.value = it.toObject((User::class.java))
-                imageUri.value = Uri.parse(userData.value?.profilePictureUrl ?: "")
+                imageUri.value = getImageUri(userData.value?.profilePictureUrl)
             }
         }
     }
+
+    Log.i("USER_INFO", "${userData.value?.username}")
+    Log.i("USER_INFO", "${userData.value?.displayName}")
 
     BottomNavigationLayout(navController, authViewModel) {
         LazyColumn(
@@ -57,7 +70,7 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
 
                     InputTextField(
                         label = "Username",
-                        prefill = username.value,
+                        prefill = userData.value?.username?: "",
                         onTextChange = { username.value = it }
                     )
 
@@ -65,7 +78,7 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
 
                     InputTextField(
                         label = "Display Name",
-                        prefill = displayName.value,
+                        prefill = userData.value?.displayName?: "",
                         onTextChange = { displayName.value = it }
                     )
 
@@ -73,7 +86,12 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
 
                     Button(
                         onClick = {
-                            userViewModel.createUserProfile(username.value, displayName.value, imageUri.value)
+                            userViewModel.createUserProfile(
+                                username.value,
+                                displayName.value,
+                                imageUri.value,
+                                getImageUri(userData.value?.profilePictureUrl),
+                                context)
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {

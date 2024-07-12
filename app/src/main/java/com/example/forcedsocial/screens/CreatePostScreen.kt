@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -23,7 +24,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel)
     val user = FirebaseAuth.getInstance().currentUser
 
     val imageUri = remember { mutableStateOf(user?.photoUrl) }
-
+    val context = LocalContext.current
 
     BottomNavigationLayout(navController, authViewModel) {
         Column(
@@ -49,7 +50,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel)
                 Button(onClick = {
                     user?.let {
                         val userId = it.uid
-                        postViewModel.createPost(userId, content.value, imageUri.value, "")
+                        postViewModel.createPost(userId, content.value, imageUri.value, "", context)
                     }
                 }) {
                     Text(text = "Post")
