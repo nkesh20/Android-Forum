@@ -102,13 +102,21 @@ fun MainScreen(viewModel: AuthViewModel) {
             val topicId = backStackEntry.arguments?.getString("topicId") ?: ""
             CreatePostScreen(navController, viewModel, topicId)
         }
-        composable(route = "postDiscussion?postId={postId}", listOf(
-            navArgument(name = "postId") {
-                type = NavType.StringType
-                defaultValue = ""
-            }
-        )) { backStackEntry ->
-            PostDiscussion()
+        composable(
+            route = "postDiscussion?postId={postId}",
+            arguments = listOf(
+                navArgument(name = "postId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId") ?: ""
+            PostDiscussion(
+                postId = postId,
+                navController = navController,
+                authViewModel = viewModel
+            )
         }
     }
 }

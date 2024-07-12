@@ -69,7 +69,8 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, t
                                     ) else null,
                                     postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(
                                         post.imageUrl
-                                    ) else null
+                                    ) else null,
+                                    onClick = { navController.navigate("postDiscussion?postId=${post.id}") }
                                 )
                             }
                         }

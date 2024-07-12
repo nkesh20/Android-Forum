@@ -1,6 +1,7 @@
 package com.example.forcedsocial.components
 
 import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,12 +24,14 @@ fun PostCard(
     userImageUri: Uri? = null,
     userName: String,
     postText: String,
-    postImageUri: Uri? = null
+    postImageUri: Uri? = null,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -92,5 +95,6 @@ fun PostCardPreview() {
         userImageUri = Uri.parse("https://firebasestorage.googleapis.com/v0/b/forced-social.appspot.com/o/images%2F7886b2c1-a278-4f47-9f90-089c6100f724.jpg?alt=media&token=6a291afe-0dcc-4a27-bcf2-f201af3ff39d"),
         userName = "John Doe",
         postText = "Just had an amazing day at the beach! The sunset was breathtaking. #BeachDay #Sunset",
+        onClick = {}
     )
 }
