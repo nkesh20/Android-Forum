@@ -5,17 +5,26 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -24,11 +33,14 @@ import androidx.navigation.NavController
 import com.example.forcedsocial.auth.AuthViewModel
 import com.example.forcedsocial.models.Topic
 import com.example.forcedsocial.viewmodels.TopicViewModel
+import com.example.forcedsocial.viewmodels.UserViewModel
 
 
 @Composable
 fun TopicsScreen(authViewModel: AuthViewModel, navController: NavController) {
     val topicViewModel: TopicViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
+
     val topics = remember { mutableStateListOf<Topic>() }
 
     LaunchedEffect(Unit) {
@@ -39,30 +51,45 @@ fun TopicsScreen(authViewModel: AuthViewModel, navController: NavController) {
     }
 
     val topicMap = topics.associateBy { it.id }
+    val canCreateTopic = userViewModel.canCreateTopic(authViewModel.currentUser.value?.uid)
 
     BottomNavigationLayout(navController, authViewModel) {
-        LazyColumn {
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        topics.filter { it.parentId == null }.forEach { rootTopic ->
-                            TopicTree(
-                                topic = rootTopic,
-                                topicMap = topicMap,
-                                level = 0,
-                                authViewModel = authViewModel,
-                                navController = navController
-                            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            topics.filter { it.parentId.isNullOrEmpty() }
+                                .forEach { rootTopic ->
+                                    TopicTree(
+                                        topic = rootTopic,
+                                        topicMap = topicMap,
+                                        level = 0,
+                                        navController = navController,
+                                        canCreateTopic = canCreateTopic
+                                    )
+                                }
                         }
                     }
                 }
             }
 
+            if (canCreateTopic) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("createTopic") },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                        .offset(0.dp, (-10).dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Topic")
+                }
+            }
         }
     }
 }
@@ -72,8 +99,8 @@ fun TopicTree(
     topic: Topic,
     topicMap: Map<String, Topic>,
     level: Int,
-    authViewModel: AuthViewModel,
-    navController: NavController
+    navController: NavController,
+    canCreateTopic: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -81,8 +108,8 @@ fun TopicTree(
         TopicItem(
             topic = topic,
             level = level,
-            authViewModel = authViewModel,
-            navController = navController
+            navController = navController,
+            canCreateTopic = canCreateTopic
         )
 
         topicMap.values
@@ -92,8 +119,8 @@ fun TopicTree(
                     topic = childTopic,
                     topicMap = topicMap,
                     level = level + 1,
-                    authViewModel = authViewModel,
-                    navController = navController
+                    navController = navController,
+                    canCreateTopic = canCreateTopic
                 )
             }
     }
@@ -103,12 +130,11 @@ fun TopicTree(
 fun TopicItem(
     topic: Topic,
     level: Int,
-    authViewModel: AuthViewModel,
-    navController: NavController
+    canCreateTopic: Boolean,
+    navController: NavController,
 ) {
-    val horizontalPadding = (8 + level * 16).dp
+    val horizontalPadding = (4 + level * 16).dp
     val width = (1f - (level * 0.1f).coerceAtMost(0.5f)).coerceAtLeast(0.3f)
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,10 +147,29 @@ fun TopicItem(
                 navController.navigate("posts/${topic.id}")
             }
     ) {
-        Text(
-            text = topic.name,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = topic.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.weight(1f)
+            )
+            if (canCreateTopic) {
+                IconButton(
+                    onClick = { navController.navigate("createTopic?parentTopicId=${topic.id}") },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Subtopic",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+        }
     }
 }

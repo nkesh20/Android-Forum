@@ -13,6 +13,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
 class UserViewModel : ViewModel() {
@@ -20,7 +22,13 @@ class UserViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
 
 
-    fun createUserProfile(username: String, displayName: String, profilePictureUri: Uri?, oldProfilePictureUri: Uri?, context: Context) {
+    fun createUserProfile(
+        username: String,
+        displayName: String,
+        profilePictureUri: Uri?,
+        oldProfilePictureUri: Uri?,
+        context: Context
+    ) {
         val userId = auth.currentUser?.uid ?: return
 
         if (profilePictureUri == null || profilePictureUri.toString() == oldProfilePictureUri?.toString()) {
@@ -86,4 +94,18 @@ class UserViewModel : ViewModel() {
     }
 
     fun getUserProfile(userId: String) = db.collection("users").document(userId).get()
+
+    fun canCreateTopic(userId: String?): Boolean {
+        if (userId == null) return false
+
+        return runBlocking {
+            val userDoc = getUserProfile(userId).await()
+            if (userDoc.exists()) {
+                val accountType = userDoc.getString("accountType")
+                accountType == User.AccountType.MODERATOR.type
+            } else {
+                false
+            }
+        }
+    }
 }
