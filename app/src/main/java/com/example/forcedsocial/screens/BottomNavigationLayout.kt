@@ -11,6 +11,8 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +24,13 @@ import androidx.navigation.NavController
 import com.example.forcedsocial.auth.AuthViewModel
 
 @Composable
-fun BottomNavigationLayout(navController: NavController, authViewModel: AuthViewModel, content: @Composable () -> Unit) {
+fun BottomNavigationLayout(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    content: @Composable () -> Unit
+) {
+    val currentUser by authViewModel.currentUser.observeAsState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -50,27 +58,32 @@ fun BottomNavigationLayout(navController: NavController, authViewModel: AuthView
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            BottomNavButton("Posts", Icons.Rounded.Home) {
-                navController.navigate("posts")
+            BottomNavButton("Topics", Icons.Rounded.Home) {
+                navController.navigate("topics")
             }
             BottomNavButton("Search", Icons.Rounded.Search) {
                 navController.navigate("search")
             }
-            BottomNavButton("Profile", Icons.Rounded.Person) {
-                navController.navigate("profile")
-            }
-            BottomNavButton("Sign Out", Icons.Rounded.ExitToApp) {
-                authViewModel.signOut()
-                navController.navigate("home") {
-                    popUpTo(navController.graph.startDestinationId) {
-                        inclusive = true
+            if (currentUser != null) {
+                BottomNavButton("Profile", Icons.Rounded.Person) {
+                    navController.navigate("profile")
+                }
+                BottomNavButton("Sign Out", Icons.Rounded.ExitToApp) {
+                    authViewModel.signOut()
+                    navController.navigate("home") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
                     }
+                }
+            } else {
+                BottomNavButton("Sign In", Icons.Rounded.ExitToApp) {
+                    navController.navigate("auth")
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun BottomNavButton(label: String, icon: ImageVector, onClick: () -> Unit) {

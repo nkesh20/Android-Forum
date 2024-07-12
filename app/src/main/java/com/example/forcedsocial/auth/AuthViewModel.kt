@@ -1,17 +1,29 @@
 package com.example.forcedsocial.auth
 
 import AuthRepository
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
 
 class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
-    val currentUser get() = repository.currentUser
+    private val _currentUser = MutableLiveData<FirebaseUser?>(repository.currentUser)
+    val currentUser: LiveData<FirebaseUser?> get() = _currentUser
+
+    init {
+        FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            _currentUser.value = auth.currentUser
+        }
+    }
 
     fun signOut() {
         viewModelScope.launch {
             repository.signOut()
+            _currentUser.value = null
         }
     }
 }

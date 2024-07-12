@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -22,22 +23,24 @@ import com.example.forcedsocial.viewmodels.RealTimeViewModel
 import com.example.forcedsocial.viewmodels.UserViewModel
 
 @Composable
-fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, topicId: String?) {
     val userViewModel: UserViewModel = viewModel()
     val realTimeUpdatesViewModel: RealTimeViewModel = viewModel()
     val posts = remember { mutableStateListOf<Post>() }
+    val currentUser by authViewModel.currentUser.observeAsState()
+
 
     LaunchedEffect(Unit) {
         realTimeUpdatesViewModel.getRealTimePosts({ updatedPosts ->
             posts.clear()
             posts.addAll(updatedPosts)
-        })
+        }, topicId = topicId)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn {
-            item {
-                BottomNavigationLayout(navController, authViewModel) {
+    BottomNavigationLayout(navController, authViewModel) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn {
+                item {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -58,26 +61,32 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
                                 }
 
                                 PostCard(
-                                    userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName?: "" else post.userId,
+                                    userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName
+                                        ?: "" else post.userId,
                                     postText = post.content,
-                                    userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(user.value?.profilePictureUrl) else null,
-                                    postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null
+                                    userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(
+                                        user.value?.profilePictureUrl
+                                    ) else null,
+                                    postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(
+                                        post.imageUrl
+                                    ) else null
                                 )
                             }
                         }
                     }
                 }
             }
-        }
-
-        FloatingActionButton(
-            onClick = { navController.navigate("createPost") },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .offset(0.dp, (-70).dp)
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
+            if (currentUser != null) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("createPost/${topicId}") },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                        .offset(0.dp, (-10).dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
+                }
+            }
         }
     }
 }

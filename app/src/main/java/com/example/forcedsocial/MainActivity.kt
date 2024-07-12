@@ -16,6 +16,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +36,7 @@ import com.example.forcedsocial.screens.PostDiscussion
 import com.example.forcedsocial.screens.ProfileScreen
 import com.example.forcedsocial.screens.PostListScreen
 import com.example.forcedsocial.screens.SearchScreen
+import com.example.forcedsocial.screens.TopicsScreen
 import com.example.forcedsocial.ui.theme.ForcedSocialTheme
 import com.google.firebase.auth.FirebaseAuth
 
@@ -61,10 +64,16 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(viewModel: AuthViewModel) {
     val navController = rememberNavController()
 
-    LaunchedEffect(viewModel.currentUser) {
-        if (viewModel.currentUser != null) {
-            navController.navigate("posts") {
+    val currentUser by viewModel.currentUser.observeAsState()
+
+    LaunchedEffect(currentUser) {
+        if (currentUser != null) {
+            navController.navigate("topics") {
                 popUpTo("home") { inclusive = true }
+            }
+        } else {
+            navController.navigate("home") {
+                popUpTo("topics") { inclusive = true }
             }
         }
     }
@@ -72,10 +81,27 @@ fun MainScreen(viewModel: AuthViewModel) {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("auth") { AuthScreen(viewModel, navController) }
-        composable("posts") { PostListScreen(navController, viewModel) }
+        composable("topics") { TopicsScreen(viewModel, navController) }
+        composable(
+            "posts/{topicId}",
+            arguments = listOf(navArgument("topicId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val topicId = backStackEntry.arguments?.getString("topicId") ?: ""
+            PostListScreen(
+                navController = navController,
+                authViewModel = viewModel,
+                topicId = topicId
+            )
+        }
         composable("search") { SearchScreen(viewModel, navController) }
         composable("profile") { ProfileScreen(viewModel, navController) }
-        composable("createPost") { CreatePostScreen(navController, viewModel) }
+        composable(
+            "createPost/{topicId}",
+            arguments = listOf(navArgument("topicId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val topicId = backStackEntry.arguments?.getString("topicId") ?: ""
+            CreatePostScreen(navController, viewModel, topicId)
+        }
         composable(route = "postDiscussion?postId={postId}", listOf(
             navArgument(name = "postId") {
                 type = NavType.StringType
@@ -110,7 +136,7 @@ fun HomeScreen(navController: NavController) {
             Text(text = "Sign in")
         }
         Button(
-            onClick = { navController.navigate("posts") },
+            onClick = { navController.navigate("topics") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Continue without signing in")
