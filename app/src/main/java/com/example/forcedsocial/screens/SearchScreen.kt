@@ -3,7 +3,6 @@ package com.example.forcedsocial.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.forcedsocial.auth.AuthViewModel
+import com.example.forcedsocial.components.InputTextField
 import com.example.forcedsocial.models.Post
 import com.example.forcedsocial.viewmodels.SearchViewModel
 
@@ -33,13 +33,11 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
             verticalArrangement = Arrangement.Top
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                BasicTextField(
-                    value = query.value,
-                    onValueChange = { query.value = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
+                InputTextField(
+                    label = "Search",
+                    onTextChange = { query.value = it }
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = {
                     searchViewModel.searchPosts(query.value)
