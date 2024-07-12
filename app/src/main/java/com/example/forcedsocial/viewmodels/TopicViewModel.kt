@@ -2,10 +2,12 @@ package com.example.forcedsocial.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.forcedsocial.models.Post
 import com.example.forcedsocial.models.Topic
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -59,6 +61,30 @@ class TopicViewModel : ViewModel() {
             querySnapshot.toObjects(Topic::class.java)
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    fun getRealTimeTopics(onUpdate: (List<Topic>) -> Unit): ListenerRegistration {
+        val query =
+            db.collection("topics")
+                .orderBy("timestamp")
+
+
+        return query.addSnapshotListener { snapshots, e ->
+            if (e != null) {
+                println("Listen failed: $e")
+                return@addSnapshotListener
+            }
+
+            snapshots?.let { snapshot ->
+                val posts = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(Topic::class.java)?.apply {
+                        // Convert Firestore Timestamp to Post timestamp
+                        timestamp = doc.getTimestamp("timestamp")
+                    }
+                }
+                onUpdate(posts)
+            }
         }
     }
 }

@@ -38,7 +38,7 @@ fun AuthScreen(
                         )
                         db.collection("users").document(it.uid).set(newUser)
                     }
-                    navController.navigate("posts")
+                    navController.navigate("topics")
                 }
             }
         }
@@ -59,6 +59,6 @@ fun AuthScreen(
             signInLauncher.launch(signInIntent)
         }
     } else {
-        navController.navigate("posts")
+        navController.navigate("topics")
     }
 }
