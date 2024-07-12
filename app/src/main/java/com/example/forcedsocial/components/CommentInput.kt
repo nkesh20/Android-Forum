@@ -23,10 +23,11 @@ import coil.compose.AsyncImage
 fun CommentInput(
     userImageUrl: Uri? = null,
     userName: String,
-    onCommentSubmit: (String) -> Unit,
+    onCommentSubmit: (String, Uri?) -> Unit,
 ) {
     var commentText by remember { mutableStateOf("") }
-    var commentImage = remember<Uri?> { null }
+    var commentImage by remember { mutableStateOf<Uri?>(null) }
+    var isCommenting by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier
@@ -69,18 +70,20 @@ fun CommentInput(
                 trailingIcon = {
                     IconButton(
                         onClick = {
-                            if (commentText.isNotBlank()) {
-                                onCommentSubmit(commentText)
+                            if (commentText.isNotBlank() && !isCommenting) {
+                                isCommenting = true
+                                onCommentSubmit(commentText, commentImage)
                                 commentText = ""
                                 commentImage = null
+                                isCommenting = false
                             }
                         },
-                        enabled = commentText.isNotBlank()
+                        enabled = commentText.isNotBlank() && !isCommenting
                     ) {
                         Icon(
                             imageVector = Icons.Default.Send,
                             contentDescription = "Send comment",
-                            tint = if (commentText.isNotBlank())
+                            tint = if (commentText.isNotBlank() && !isCommenting)
                                 MaterialTheme.colorScheme.primary
                             else
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
@@ -99,5 +102,5 @@ fun CommentInput(
 @Preview
 @Composable
 fun CommentInputPreview() {
-    CommentInput(userName = "Nika", onCommentSubmit = {})
+    CommentInput(userName = "Nika", onCommentSubmit = { _: String, _: Uri? -> })
 }

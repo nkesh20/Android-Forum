@@ -42,6 +42,7 @@ fun PostDiscussion(postId: String, navController: NavController, authViewModel: 
     var comments by remember { mutableStateOf<List<Comment>?>(null) }
     var postUser by remember { mutableStateOf<User?>(null) }
     val commentUsers = remember { mutableStateMapOf<String, User>() }
+    var currentUserProfile by remember { mutableStateOf<User?>(null) }
 
     LaunchedEffect(postId) {
         if (postId.isNotEmpty()) {
@@ -75,6 +76,14 @@ fun PostDiscussion(postId: String, navController: NavController, authViewModel: 
         }
     }
 
+    LaunchedEffect(currentUser?.uid) {
+        currentUser?.uid?.let { userId ->
+            userViewModel.getUserProfile(userId).addOnSuccessListener { document ->
+                currentUserProfile = document.toObject(User::class.java)
+            }
+        }
+    }
+
     BottomNavigationLayout(
         navController,
         authViewModel
@@ -87,18 +96,25 @@ fun PostDiscussion(postId: String, navController: NavController, authViewModel: 
                             userName = postUser?.displayName ?: it.userId,
                             postText = it.content,
                             userImageUri = postUser?.profilePictureUrl?.let { url -> Uri.parse(url) },
+                            postImageUri = it.imageUrl?.let { url -> Uri.parse(url) },
                             onClick = {}
                         )
                     }
 
                     CommentInput(
                         userName = currentUser?.displayName ?: "",
-                        onCommentSubmit = { commentText ->
+                        userImageUrl = currentUserProfile?.profilePictureUrl?.let { url ->
+                            Uri.parse(
+                                url
+                            )
+                        },
+                        onCommentSubmit = { commentText, commentImageUri ->
                             commentViewModel.createComment(
                                 userId = currentUser?.uid ?: "",
                                 postId = postId,
                                 content = commentText,
-                                imageUrl = null
+                                imageUri = commentImageUri,
+                                context = context
                             )
                         }
                     )
@@ -112,6 +128,7 @@ fun PostDiscussion(postId: String, navController: NavController, authViewModel: 
                                     url
                                 )
                             },
+                            postImageUri = comment.imageUrl?.let { url -> Uri.parse(url) },
                             onClick = {}
                         )
                     }
