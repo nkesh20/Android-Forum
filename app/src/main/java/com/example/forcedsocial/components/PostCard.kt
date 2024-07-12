@@ -1,10 +1,12 @@
 package com.example.forcedsocial.components
 
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -14,7 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -27,6 +33,7 @@ fun PostCard(
     postImageUri: Uri? = null,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,13 +69,41 @@ fun PostCard(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
+            
+            val annotatedText = buildAnnotatedString {
+                append(postText)
+                val regex = "(https?://[\\w-]+(\\.[\\w-]+)+(/[#?]?.*)?)".toRegex()
+                val matches = regex.findAll(postText)
 
-            // Post text
-            Text(
-                text = postText,
+                matches.forEach { match ->
+                    addStyle(
+                        style = SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        start = match.range.first,
+                        end = match.range.last + 1
+                    )
+                    addStringAnnotation(
+                        tag = "URL",
+                        annotation = match.value,
+                        start = match.range.first,
+                        end = match.range.last + 1
+                    )
+                }
+            }
+
+            ClickableText(
+                text = annotatedText,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 8.dp)
-            )
+            ) { offset ->
+                annotatedText.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                    .firstOrNull()?.let { annotation ->
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
+                        context.startActivity(intent)
+                    }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
