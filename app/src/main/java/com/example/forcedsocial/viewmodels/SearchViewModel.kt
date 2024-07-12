@@ -13,6 +13,9 @@ class SearchViewModel : ViewModel() {
     private val _searchResults = MutableStateFlow<List<Post>>(emptyList())
     val searchResults: StateFlow<List<Post>> = _searchResults
 
+    private val _noResultsFound = MutableStateFlow(false)
+    val noResultsFound: StateFlow<Boolean> = _noResultsFound
+
     fun searchPosts(query: String) {
         db.collection("posts")
             .get()
@@ -21,6 +24,7 @@ class SearchViewModel : ViewModel() {
                 val filteredPosts = posts.filter { it.content.contains(query, ignoreCase = true) }
                 viewModelScope.launch {
                     _searchResults.emit(filteredPosts)
+                    _noResultsFound.emit(filteredPosts.isEmpty())
                 }
             }
             .addOnFailureListener {

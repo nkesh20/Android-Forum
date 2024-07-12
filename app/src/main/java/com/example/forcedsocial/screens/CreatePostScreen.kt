@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,6 +29,15 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel,
 
     var imageUri: Uri? = null
     val context = LocalContext.current
+
+    val postCreationSuccess by postViewModel.postCreationSuccess.observeAsState()
+    LaunchedEffect(postCreationSuccess) {
+        if (postCreationSuccess == true) {
+            navController.navigate("posts/${topicId}") {
+                popUpTo("createPost") { inclusive = true }
+            }
+        }
+    }
 
     BottomNavigationLayout(navController, authViewModel) {
         Column(

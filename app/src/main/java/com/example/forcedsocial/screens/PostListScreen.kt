@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -26,6 +27,8 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, t
     val userViewModel: UserViewModel = viewModel()
     val realTimeUpdatesViewModel: RealTimeViewModel = viewModel()
     val posts = remember { mutableStateListOf<Post>() }
+    val currentUser by authViewModel.currentUser.observeAsState()
+
 
     LaunchedEffect(Unit) {
         realTimeUpdatesViewModel.getRealTimePosts({ updatedPosts ->
@@ -73,14 +76,16 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, t
                     }
                 }
             }
-            FloatingActionButton(
-                onClick = { navController.navigate("createPost/${topicId}") },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .offset(0.dp, (-10).dp)
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
+            if (currentUser != null) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("createPost/${topicId}") },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                        .offset(0.dp, (-10).dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
+                }
             }
         }
     }
