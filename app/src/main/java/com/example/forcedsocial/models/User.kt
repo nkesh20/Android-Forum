@@ -11,11 +11,11 @@ data class User(
     val profilePictureUrl: String? = null,
     @get:PropertyName("accountType") @set:PropertyName("accountType") var accountType: AccountType = AccountType.USER
 ) {
-    enum class AccountType {
+    enum class AccountType(val type: String) {
         @PropertyName("user")
-        USER,
+        USER("user"),
 
         @PropertyName("moderator")
-        MODERATOR
+        MODERATOR("moderator")
     }
 }
