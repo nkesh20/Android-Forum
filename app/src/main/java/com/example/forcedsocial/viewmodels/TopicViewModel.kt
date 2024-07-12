@@ -1,8 +1,9 @@
 package com.example.forcedsocial.viewmodels
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.forcedsocial.models.Post
 import com.example.forcedsocial.models.Topic
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -14,8 +15,10 @@ import kotlinx.coroutines.tasks.await
 class TopicViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private var lastVisibleTopic: DocumentSnapshot? = null
+    private val _topicCreationSuccess = MutableLiveData<Boolean>()
+    val topicCreationSuccess: LiveData<Boolean> = _topicCreationSuccess
 
-    fun createTopic(userId: String, parentId: String, name: String) {
+    fun createTopic(userId: String, parentId: String?, name: String) {
         viewModelScope.launch {
             try {
                 val timestamp = Timestamp.now()
@@ -26,7 +29,9 @@ class TopicViewModel : ViewModel() {
                     timestamp = timestamp
                 )
                 db.collection("topics").add(topic).await()
+                _topicCreationSuccess.value = true
             } catch (e: Exception) {
+                _topicCreationSuccess.value = false
                 e.printStackTrace()
             }
         }
