@@ -5,6 +5,8 @@ import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.forcedsocial.R
@@ -22,6 +24,7 @@ fun AuthScreen(
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
+    val currentUser by viewModel.currentUser.observeAsState()
 
     val signInLauncher = rememberLauncherForActivityResult(
         contract = FirebaseAuthUIActivityResultContract()
@@ -38,13 +41,15 @@ fun AuthScreen(
                         )
                         db.collection("users").document(it.uid).set(newUser)
                     }
-                    navController.navigate("posts")
+                    navController.navigate("posts") {
+                        popUpTo("auth") { inclusive = true }
+                    }
                 }
             }
         }
     }
 
-    if (viewModel.currentUser == null) {
+    if (currentUser == null) {
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),
             AuthUI.IdpConfig.GoogleBuilder().build()
@@ -59,6 +64,8 @@ fun AuthScreen(
             signInLauncher.launch(signInIntent)
         }
     } else {
-        navController.navigate("posts")
+        navController.navigate("posts") {
+            popUpTo("auth") { inclusive = true }
+        }
     }
 }
