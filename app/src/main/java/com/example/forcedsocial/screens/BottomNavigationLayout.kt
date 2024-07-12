@@ -50,8 +50,8 @@ fun BottomNavigationLayout(navController: NavController, authViewModel: AuthView
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            BottomNavButton("Posts", Icons.Rounded.Home) {
-                navController.navigate("posts")
+            BottomNavButton("Topics", Icons.Rounded.Home) {
+                navController.navigate("topics")
             }
             BottomNavButton("Search", Icons.Rounded.Search) {
                 navController.navigate("search")
