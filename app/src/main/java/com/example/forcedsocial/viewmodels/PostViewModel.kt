@@ -1,37 +1,63 @@
 package com.example.forcedsocial.viewmodels
 
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.forcedsocial.models.Post
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class PostViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private var lastVisiblePost: DocumentSnapshot? = null
     private var lastVisiblePostByTopic: MutableMap<String, DocumentSnapshot?> = mutableMapOf()
 
-    fun createPost(userId: String, content: String, imageUrl: String?, topicId: String) {
+    fun createPost(userId: String, content: String, imageUri: Uri?, topicId: String) {
         if (content.isEmpty()) {
             return
         }
-        viewModelScope.launch {
-            val timestamp = com.google.firebase.Timestamp.now()
-            val post = Post(
-                userId = userId,
-                content = content,
-                imageUrl = imageUrl,
-                timestamp = timestamp,
-                topicId = topicId
-            )
-            withContext(Dispatchers.IO) {
-                db.collection("posts").add(post).await()
+
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+
+        val imageName = UUID.randomUUID()
+
+        val spaceRef: StorageReference = storageRef.child("images/${imageName}.jpg")
+
+        val uploadTask = imageUri?.let { spaceRef.putFile(it) }
+
+        uploadTask?.addOnFailureListener {
+            Log.e("Post creation", "Post creation failed")
+        }?.addOnSuccessListener {
+            spaceRef.downloadUrl.addOnSuccessListener {
+                val imageUrl = it.toString()
+                viewModelScope.launch {
+                    val timestamp = com.google.firebase.Timestamp.now()
+                    val post = Post(
+                        userId = userId,
+                        content = content,
+                        imageUrl = imageUrl,
+                        timestamp = timestamp,
+                        topicId = topicId
+                    )
+                    withContext(Dispatchers.IO) {
+                        db.collection("posts").add(post).await()
+                    }
+                }
+            }.addOnFailureListener {
+                Log.e("Post creation", "Post creation failed")
             }
         }
+
     }
 
     fun deletePost(postId: String) {
