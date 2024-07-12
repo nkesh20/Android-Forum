@@ -22,7 +22,7 @@ import com.example.forcedsocial.viewmodels.RealTimeViewModel
 import com.example.forcedsocial.viewmodels.UserViewModel
 
 @Composable
-fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, topicId: String?) {
     val userViewModel: UserViewModel = viewModel()
     val realTimeUpdatesViewModel: RealTimeViewModel = viewModel()
     val posts = remember { mutableStateListOf<Post>() }
@@ -31,7 +31,7 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
         realTimeUpdatesViewModel.getRealTimePosts({ updatedPosts ->
             posts.clear()
             posts.addAll(updatedPosts)
-        })
+        }, topicId = topicId)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -58,10 +58,15 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
                                 }
 
                                 PostCard(
-                                    userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName?: "" else post.userId,
+                                    userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName
+                                        ?: "" else post.userId,
                                     postText = post.content,
-                                    userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(user.value?.profilePictureUrl) else null,
-                                    postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null
+                                    userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(
+                                        user.value?.profilePictureUrl
+                                    ) else null,
+                                    postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(
+                                        post.imageUrl
+                                    ) else null
                                 )
                             }
                         }
@@ -71,7 +76,7 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
         }
 
         FloatingActionButton(
-            onClick = { navController.navigate("createPost") },
+            onClick = { navController.navigate("createPost/${topicId}") },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
