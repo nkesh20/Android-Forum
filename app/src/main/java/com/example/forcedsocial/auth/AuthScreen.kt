@@ -41,7 +41,7 @@ fun AuthScreen(
                         )
                         db.collection("users").document(it.uid).set(newUser)
                     }
-                    navController.navigate("posts") {
+                    navController.navigate("topics") {
                         popUpTo("auth") { inclusive = true }
                     }
                 }
@@ -64,7 +64,7 @@ fun AuthScreen(
             signInLauncher.launch(signInIntent)
         }
     } else {
-        navController.navigate("posts") {
+        navController.navigate("topics") {
             popUpTo("auth") { inclusive = true }
         }
     }

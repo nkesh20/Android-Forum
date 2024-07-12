@@ -69,16 +69,15 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                                 Log.e("Post User", "Error while getting User from post")
                             }
 
-                            PostCard(
-                                userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName
-                                    ?: "" else post.userId,
-                                postText = post.content,
-                                userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(
-                                    user.value?.profilePictureUrl
-                                ) else null,
-                                postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null
-                            )
-                        }
+                        PostCard(
+                            userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName
+                                ?: "" else post.userId,
+                            postText = post.content,
+                            userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(
+                                user.value?.profilePictureUrl
+                            ) else null,
+                            postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null
+                        )
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.forcedsocial.screens
 
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -21,12 +22,12 @@ import com.example.forcedsocial.viewmodels.PostViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel, topicId: String) {
     val postViewModel: PostViewModel = viewModel()
     val content = remember { mutableStateOf("") }
     val user = FirebaseAuth.getInstance().currentUser
 
-    val imageUri = remember { mutableStateOf(user?.photoUrl) }
+    var imageUri: Uri? = null
     val context = LocalContext.current
 
     val postCreationSuccess by postViewModel.postCreationSuccess.observeAsState()
@@ -53,7 +54,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel)
 
                 RegularImageUpload(
                     onUpload = {
-                        imageUri.value = it
+                        imageUri = it
                     }
                 )
 
@@ -62,7 +63,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel)
                 Button(onClick = {
                     user?.let {
                         val userId = it.uid
-                        postViewModel.createPost(userId, content.value, imageUri.value, "", context)
+                        postViewModel.createPost(userId, content.value, imageUri, topicId, context)
                     }
                 }) {
                     Text(text = "Post")

@@ -23,7 +23,7 @@ import com.example.forcedsocial.viewmodels.RealTimeViewModel
 import com.example.forcedsocial.viewmodels.UserViewModel
 
 @Composable
-fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, topicId: String?) {
     val userViewModel: UserViewModel = viewModel()
     val realTimeUpdatesViewModel: RealTimeViewModel = viewModel()
     val posts = remember { mutableStateListOf<Post>() }
@@ -34,13 +34,13 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
         realTimeUpdatesViewModel.getRealTimePosts({ updatedPosts ->
             posts.clear()
             posts.addAll(updatedPosts)
-        })
+        }, topicId = topicId)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn {
-            item {
-                BottomNavigationLayout(navController, authViewModel) {
+    BottomNavigationLayout(navController, authViewModel) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn {
+                item {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -76,17 +76,16 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
                     }
                 }
             }
-        }
-
-        if (currentUser != null) {
-            FloatingActionButton(
-                onClick = { navController.navigate("createPost") },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .offset(0.dp, (-70).dp)
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
+            if (currentUser != null) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("createPost/${topicId}") },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                        .offset(0.dp, (-10).dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
+                }
             }
         }
     }
