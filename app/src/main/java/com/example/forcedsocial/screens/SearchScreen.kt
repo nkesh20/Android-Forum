@@ -34,6 +34,8 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
     val noPostResultsFound by searchViewModel.noPostResultsFound.collectAsState()
     val searchUserResults by searchViewModel.searchUserResults.collectAsState()
     val noUserResultsFound by searchViewModel.noUserResultsFound.collectAsState()
+    val searchTopicResults by searchViewModel.searchTopicResults.collectAsState()
+    val noTopicResultsFound by searchViewModel.noTopicResultsFound.collectAsState()
 
     BottomNavigationLayout(navController, authViewModel) {
         Column(
@@ -56,10 +58,13 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                if (noPostResultsFound && noUserResultsFound) {
+                if (noPostResultsFound && noUserResultsFound && noTopicResultsFound) {
                     Text(text = "No results found", modifier = Modifier.padding(16.dp))
                 } else {
                     LazyColumn {
+                        items(searchTopicResults) {topic ->
+                            TopicItem(topic = topic, level = 0, canCreateTopic = false, navController = navController)
+                        }
                         items(searchUserResults) { user ->
                             val userId = user.id
                             val displayName = user.displayName
@@ -70,7 +75,7 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                             UserSearchEntry(
                                 username = displayName,
                                 profilePicture = profilePictureUri,
-                                onClick = { navController.navigate("userProfile/userId=${userId}") }
+                                onClick = { navController.navigate("userProfile?userId=${userId}") }
                             )
                         }
                         items(searchPostResults) { post ->
@@ -93,7 +98,7 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                                     user.value?.profilePictureUrl
                                 ) else null,
                                 postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null,
-                                onClick = {}
+                                onClick = { navController.navigate("postDiscussion?postId=${post.id}")}
                             )
                         }
                     }

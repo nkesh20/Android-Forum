@@ -132,7 +132,7 @@ fun MainScreen(viewModel: AuthViewModel) {
             )
         }
         composable(
-            "userProfile/userId={userId}",
+            "userProfile?userId={userId}",
             arguments = listOf(
                 navArgument(name = "postId") {
                     type = NavType.StringType
