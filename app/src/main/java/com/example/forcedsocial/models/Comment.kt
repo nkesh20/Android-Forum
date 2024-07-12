@@ -3,12 +3,12 @@ package com.example.forcedsocial.models
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 
-data class Post(
+data class Comment(
     @DocumentId
     val id: String = "",
     val userId: String = "",
-    val topicId: String = "",
-    val content: String = "",
+    val postId: String,
+    val content: String,
     val imageUrl: String? = null,
     var timestamp: Timestamp? = null
 )
