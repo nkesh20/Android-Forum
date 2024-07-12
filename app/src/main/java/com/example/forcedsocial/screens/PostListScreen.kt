@@ -34,10 +34,10 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, t
         }, topicId = topicId)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn {
-            item {
-                BottomNavigationLayout(navController, authViewModel) {
+    BottomNavigationLayout(navController, authViewModel) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn {
+                item {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -73,16 +73,15 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, t
                     }
                 }
             }
-        }
-
-        FloatingActionButton(
-            onClick = { navController.navigate("createPost/${topicId}") },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .offset(0.dp, (-70).dp)
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
+            FloatingActionButton(
+                onClick = { navController.navigate("createPost/${topicId}") },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+                    .offset(0.dp, (-10).dp)
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Post")
+            }
         }
     }
 }

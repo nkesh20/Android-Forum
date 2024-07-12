@@ -40,9 +40,9 @@ fun TopicsScreen(authViewModel: AuthViewModel, navController: NavController) {
 
     val topicMap = topics.associateBy { it.id }
 
-    LazyColumn {
-        item {
-            BottomNavigationLayout(navController, authViewModel) {
+    BottomNavigationLayout(navController, authViewModel) {
+        LazyColumn {
+            item {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -51,7 +51,13 @@ fun TopicsScreen(authViewModel: AuthViewModel, navController: NavController) {
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         topics.filter { it.parentId == null }.forEach { rootTopic ->
-                            TopicTree(topic = rootTopic, topicMap = topicMap, level = 0, authViewModel = authViewModel, navController = navController)
+                            TopicTree(
+                                topic = rootTopic,
+                                topicMap = topicMap,
+                                level = 0,
+                                authViewModel = authViewModel,
+                                navController = navController
+                            )
                         }
                     }
                 }
@@ -62,22 +68,44 @@ fun TopicsScreen(authViewModel: AuthViewModel, navController: NavController) {
 }
 
 @Composable
-fun TopicTree(topic: Topic, topicMap: Map<String, Topic>, level: Int, authViewModel: AuthViewModel, navController: NavController) {
+fun TopicTree(
+    topic: Topic,
+    topicMap: Map<String, Topic>,
+    level: Int,
+    authViewModel: AuthViewModel,
+    navController: NavController
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        TopicItem(topic = topic, level = level, authViewModel = authViewModel, navController = navController)
+        TopicItem(
+            topic = topic,
+            level = level,
+            authViewModel = authViewModel,
+            navController = navController
+        )
 
         topicMap.values
             .filter { it.parentId == topic.id }
             .forEach { childTopic ->
-                TopicTree(topic = childTopic, topicMap = topicMap, level = level + 1, authViewModel = authViewModel, navController = navController)
+                TopicTree(
+                    topic = childTopic,
+                    topicMap = topicMap,
+                    level = level + 1,
+                    authViewModel = authViewModel,
+                    navController = navController
+                )
             }
     }
 }
 
 @Composable
-fun TopicItem(topic: Topic, level: Int, authViewModel: AuthViewModel, navController: NavController) {
+fun TopicItem(
+    topic: Topic,
+    level: Int,
+    authViewModel: AuthViewModel,
+    navController: NavController
+) {
     val horizontalPadding = (8 + level * 16).dp
     val width = (1f - (level * 0.1f).coerceAtMost(0.5f)).coerceAtLeast(0.3f)
 
