@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 @Composable
-fun UserSearchEntry (
+fun UserSearchEntry(
     username: String,
     profilePicture: Uri? = null,
     onClick: () -> Unit

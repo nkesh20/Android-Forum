@@ -20,10 +20,10 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 @Composable
-fun UserProfile (
+fun UserProfile(
     username: String,
     displayName: String,
-    profilePicture: Uri?= null
+    profilePicture: Uri? = null
 ) {
     Log.i("FROM_USER", profilePicture.toString())
     Card(

@@ -43,7 +43,11 @@ fun UserProfileScreen(userId: String, navController: NavController, authViewMode
     BottomNavigationLayout(navController = navController, authViewModel = authViewModel) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (user != null) {
-                UserProfile(username = user?.username?: "", displayName = user?.displayName?: "", profilePicture = if (!user?.profilePictureUrl.isNullOrEmpty()) Uri.parse(user?.profilePictureUrl) else null)
+                UserProfile(
+                    username = user?.username ?: "",
+                    displayName = user?.displayName ?: "",
+                    profilePicture = if (!user?.profilePictureUrl.isNullOrEmpty()) Uri.parse(user?.profilePictureUrl) else null
+                )
             }
         }
     }

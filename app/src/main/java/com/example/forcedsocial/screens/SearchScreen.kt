@@ -62,14 +62,20 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                     Text(text = "No results found", modifier = Modifier.padding(16.dp))
                 } else {
                     LazyColumn {
-                        items(searchTopicResults) {topic ->
-                            TopicItem(topic = topic, level = 0, canCreateTopic = false, navController = navController)
+                        items(searchTopicResults) { topic ->
+                            TopicItem(
+                                topic = topic,
+                                level = 0,
+                                canCreateTopic = false,
+                                navController = navController
+                            )
                         }
                         items(searchUserResults) { user ->
                             val userId = user.id
                             val displayName = user.displayName
                             val profilePictureUrl = user.profilePictureUrl
-                            val profilePictureUri = if (!profilePictureUrl.isNullOrEmpty()) Uri.parse(profilePictureUrl) else null
+                            val profilePictureUri =
+                                if (!profilePictureUrl.isNullOrEmpty()) Uri.parse(profilePictureUrl) else null
 
                             Log.i("USER_IMAGE", profilePictureUri.toString())
                             UserSearchEntry(
@@ -98,7 +104,8 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                                     user.value?.profilePictureUrl
                                 ) else null,
                                 postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null,
-                                onClick = { navController.navigate("postDiscussion?postId=${post.id}")}
+                                datetime = post.timestamp?.toDate().toString(),
+                                onClick = { navController.navigate("postDiscussion?postId=${post.id}") }
                             )
                         }
                     }

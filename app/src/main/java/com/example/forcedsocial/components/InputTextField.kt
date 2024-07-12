@@ -19,7 +19,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun InputTextField(label: String, prefill: String = "", iconVector: ImageVector? = null, onTextChange: (String) -> Unit) {
+fun InputTextField(
+    label: String,
+    prefill: String = "",
+    iconVector: ImageVector? = null,
+    onTextChange: (String) -> Unit
+) {
     val text = remember {
         mutableStateOf(prefill)
     }

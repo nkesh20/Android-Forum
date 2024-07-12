@@ -47,7 +47,12 @@ class SearchViewModel : ViewModel() {
             .get()
             .addOnSuccessListener { result ->
                 val users = result.map { document -> document.toObject(User::class.java) }
-                val filteredUsers = users.filter { user -> user.displayName.contains(query, ignoreCase = true) || user.username.contains(query, ignoreCase = true) }
+                val filteredUsers = users.filter { user ->
+                    user.displayName.contains(
+                        query,
+                        ignoreCase = true
+                    ) || user.username.contains(query, ignoreCase = true)
+                }
                 viewModelScope.launch {
                     _searchUserResults.emit(filteredUsers)
                     _noUserResultsFound.emit(filteredUsers.isEmpty())
@@ -61,7 +66,8 @@ class SearchViewModel : ViewModel() {
             .get()
             .addOnSuccessListener { result ->
                 val topics = result.map { document -> document.toObject(Topic::class.java) }
-                val filteredTopics = topics.filter { topic -> topic.name.contains(query, ignoreCase = true) }
+                val filteredTopics =
+                    topics.filter { topic -> topic.name.contains(query, ignoreCase = true) }
                 viewModelScope.launch {
                     _searchTopicResults.emit(filteredTopics)
                     _noTopicResultsFound.emit(filteredTopics.isEmpty())

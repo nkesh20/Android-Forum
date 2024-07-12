@@ -97,7 +97,7 @@ class UserViewModel : ViewModel() {
 
     fun getUserProfile(userId: String) = db.collection("users").document(userId).get()
 
-    fun canCreateTopic(userId: String?): Boolean {
+    fun isModerator(userId: String?): Boolean {
         if (userId == null) return false
 
         return runBlocking {

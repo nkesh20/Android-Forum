@@ -139,9 +139,13 @@ fun MainScreen(viewModel: AuthViewModel) {
                     defaultValue = ""
                 }
             )
-        ) {backStackEntry ->
+        ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
-            UserProfileScreen(userId = userId, navController = navController, authViewModel = viewModel)
+            UserProfileScreen(
+                userId = userId,
+                navController = navController,
+                authViewModel = viewModel
+            )
         }
     }
 }
