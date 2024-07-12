@@ -26,6 +26,24 @@ class PostViewModel : ViewModel() {
             return
         }
 
+        if (imageUri == null) {
+            viewModelScope.launch {
+                val timestamp = com.google.firebase.Timestamp.now()
+                val post = Post(
+                    userId = userId,
+                    content = content,
+                    imageUrl = null,
+                    timestamp = timestamp,
+                    topicId = topicId
+                )
+                withContext(Dispatchers.IO) {
+                    db.collection("posts").add(post).await()
+                }
+            }
+
+            return
+        }
+
         val storage = Firebase.storage
         val storageRef = storage.reference
 
@@ -33,11 +51,11 @@ class PostViewModel : ViewModel() {
 
         val spaceRef: StorageReference = storageRef.child("images/${imageName}.jpg")
 
-        val uploadTask = imageUri?.let { spaceRef.putFile(it) }
+        val uploadTask = imageUri.let { spaceRef.putFile(it) }
 
-        uploadTask?.addOnFailureListener {
+        uploadTask.addOnFailureListener {
             Log.e("Post creation", "Post creation failed")
-        }?.addOnSuccessListener {
+        }.addOnSuccessListener {
             spaceRef.downloadUrl.addOnSuccessListener {
                 val imageUrl = it.toString()
                 viewModelScope.launch {
