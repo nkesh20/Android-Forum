@@ -12,12 +12,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.forcedsocial.auth.AuthViewModel
-import com.example.forcedsocial.viewmodels.UserProfileViewModel
+import com.example.forcedsocial.viewmodels.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
-    val userProfileViewModel: UserProfileViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
     val user = FirebaseAuth.getInstance().currentUser
     val username = remember { mutableStateOf(user?.email ?: "") }
     val displayName = remember { mutableStateOf(user?.displayName ?: "") }
@@ -48,7 +48,7 @@ fun ProfileScreen(authViewModel: AuthViewModel, navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = {
-                    userProfileViewModel.createUserProfile(username.value, displayName.value, null)
+                    userViewModel.createUserProfile(username.value, displayName.value, null)
                 }) {
                     Text(text = "Save Profile")
                 }

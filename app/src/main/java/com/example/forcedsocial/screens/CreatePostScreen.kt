@@ -41,7 +41,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel)
                 Button(onClick = {
                     user?.let {
                         val userId = it.uid
-                        postViewModel.createPost(userId, content.value, null)
+                        postViewModel.createPost(userId, content.value, null, "")
                     }
                 }) {
                     Text(text = "Post")

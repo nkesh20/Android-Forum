@@ -18,10 +18,10 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel) {
     val posts = remember { mutableStateListOf<Post>() }
 
     LaunchedEffect(Unit) {
-        realTimeUpdatesViewModel.getRealTimePosts { updatedPosts ->
+        realTimeUpdatesViewModel.getRealTimePosts({ updatedPosts ->
             posts.clear()
             posts.addAll(updatedPosts)
-        }
+        })
     }
 
     BottomNavigationLayout(navController, authViewModel) {
