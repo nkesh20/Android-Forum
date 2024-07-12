@@ -40,24 +40,33 @@ class PostViewModel : ViewModel() {
 
         if (imageUri == null) {
             viewModelScope.launch {
-                val timestamp = com.google.firebase.Timestamp.now()
-                val post = Post(
-                    userId = userId,
-                    content = content,
-                    imageUrl = null,
-                    timestamp = timestamp,
-                    topicId = topicId
-                )
-                withContext(Dispatchers.IO) {
-                    db.collection("posts").add(post).await()
+                try {
+                    val timestamp = com.google.firebase.Timestamp.now()
+                    val post = Post(
+                        userId = userId,
+                        content = content,
+                        imageUrl = null,
+                        timestamp = timestamp,
+                        topicId = topicId
+                    )
+                    withContext(Dispatchers.IO) {
+                        db.collection("posts").add(post).await()
+                    }
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Successfully posted!", Toast.LENGTH_SHORT).show()
+                        _postCreationSuccess.value = true
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "Post creation failed, please try again",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        _postCreationSuccess.value = false
+                    }
                 }
             }
-
-            Toast.makeText(
-                context,
-                "Successfully posted!",
-                Toast.LENGTH_SHORT
-            ).show()
             return
         }
 
@@ -71,29 +80,39 @@ class PostViewModel : ViewModel() {
         val uploadTask = imageUri.let { spaceRef.putFile(it) }
 
         uploadTask.addOnFailureListener {
-            Toast.makeText(
-                context,
-                "Post creation failed, please try again",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(context, "Post creation failed, please try again", Toast.LENGTH_SHORT)
+                .show()
+            _postCreationSuccess.value = false
         }.addOnSuccessListener {
             spaceRef.downloadUrl.addOnSuccessListener {
                 val imageUrl = it.toString()
                 viewModelScope.launch {
-                    val timestamp = com.google.firebase.Timestamp.now()
-                    val post = Post(
-                        userId = userId,
-                        content = content,
-                        imageUrl = imageUrl,
-                        timestamp = timestamp,
-                        topicId = topicId
-                    )
-                    withContext(Dispatchers.IO) {
-                        db.collection("posts").add(post).await()
-                    }
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Successfully posted!", Toast.LENGTH_SHORT).show()
-                        _postCreationSuccess.value = true
+                    try {
+                        val timestamp = com.google.firebase.Timestamp.now()
+                        val post = Post(
+                            userId = userId,
+                            content = content,
+                            imageUrl = imageUrl,
+                            timestamp = timestamp,
+                            topicId = topicId
+                        )
+                        withContext(Dispatchers.IO) {
+                            db.collection("posts").add(post).await()
+                        }
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Successfully posted!", Toast.LENGTH_SHORT)
+                                .show()
+                            _postCreationSuccess.value = true
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                "Post creation failed, please try again",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            _postCreationSuccess.value = false
+                        }
                     }
                 }
             }.addOnFailureListener {
@@ -102,9 +121,9 @@ class PostViewModel : ViewModel() {
                     "Post creation failed, please try again",
                     Toast.LENGTH_SHORT
                 ).show()
+                _postCreationSuccess.value = false
             }
         }
-
     }
 
     fun deletePost(postId: String) {
