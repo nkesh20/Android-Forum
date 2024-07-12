@@ -3,6 +3,8 @@ package com.example.forcedsocial.viewmodels
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.forcedsocial.models.Post
@@ -22,7 +24,16 @@ class PostViewModel : ViewModel() {
     private var lastVisiblePost: DocumentSnapshot? = null
     private var lastVisiblePostByTopic: MutableMap<String, DocumentSnapshot?> = mutableMapOf()
 
-    fun createPost(userId: String, content: String, imageUri: Uri?, topicId: String, context: Context) {
+    private val _postCreationSuccess = MutableLiveData<Boolean>()
+    val postCreationSuccess: LiveData<Boolean> = _postCreationSuccess
+
+    fun createPost(
+        userId: String,
+        content: String,
+        imageUri: Uri?,
+        topicId: String,
+        context: Context
+    ) {
         if (content.isEmpty()) {
             return
         }
@@ -80,12 +91,11 @@ class PostViewModel : ViewModel() {
                     withContext(Dispatchers.IO) {
                         db.collection("posts").add(post).await()
                     }
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Successfully posted!", Toast.LENGTH_SHORT).show()
+                        _postCreationSuccess.value = true
+                    }
                 }
-                Toast.makeText(
-                    context,
-                    "Successfully posted!",
-                    Toast.LENGTH_SHORT
-                ).show()
             }.addOnFailureListener {
                 Toast.makeText(
                     context,
