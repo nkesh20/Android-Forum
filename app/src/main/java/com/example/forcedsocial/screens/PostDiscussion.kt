@@ -97,7 +97,10 @@ fun PostDiscussion(postId: String, navController: NavController, authViewModel: 
                             datetime = it.timestamp?.toDate().toString(),
                             onClick = {},
                             canDelete = userViewModel.isModerator(currentUser?.uid),
-                            onDelete = { postViewModel.deletePost(postId, commentViewModel) }
+                            onDelete = {
+                                postViewModel.deletePost(postId, commentViewModel)
+                                navController.navigate("posts/${it.topicId}")
+                            }
                         )
                     }
 
