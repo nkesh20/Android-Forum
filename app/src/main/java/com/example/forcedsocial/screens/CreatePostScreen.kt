@@ -33,7 +33,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel,
     val postCreationSuccess by postViewModel.postCreationSuccess.observeAsState()
     LaunchedEffect(postCreationSuccess) {
         if (postCreationSuccess == true) {
-            navController.navigate("posts") {
+            navController.navigate("posts/${topicId}") {
                 popUpTo("createPost") { inclusive = true }
             }
         }
