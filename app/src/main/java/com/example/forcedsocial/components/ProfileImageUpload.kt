@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -68,24 +67,6 @@ fun ProfileImageUpload(
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
                 contentScale = ContentScale.Crop,
             )
-
-            if (selectedImageUri != null && initialImage != selectedImageUri) {
-                IconButton(
-                    onClick = {
-                        selectedImageUri = initialImage
-                        onUpload(initialImage)
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(24.dp)
-                        .background(MaterialTheme.colorScheme.outline, CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Clear,
-                        contentDescription = "Remove Image",
-                    )
-                }
-            }
 
             IconButton(
                 onClick = {

@@ -1,7 +1,9 @@
 package com.example.forcedsocial.viewmodels
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.forcedsocial.models.User
@@ -17,26 +19,43 @@ class UserViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    fun createUserProfile(username: String, displayName: String, profilePictureUri: Uri?) {
+
+    fun createUserProfile(username: String, displayName: String, profilePictureUri: Uri?, oldProfilePictureUri: Uri?, context: Context) {
         val userId = auth.currentUser?.uid ?: return
+
+        if (profilePictureUri == null || profilePictureUri.toString() == oldProfilePictureUri?.toString()) {
+            val user = User(userId, username, displayName, profilePictureUri?.toString())
+
+            viewModelScope.launch {
+                db.collection("users").document(userId).set(user)
+            }
+
+            Toast.makeText(
+                context,
+                "Successfully updated user",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
         val storage = Firebase.storage
         val storageRef = storage.reference
-
         val imageName = UUID.randomUUID()
-
         val spaceRef: StorageReference = storageRef.child("images/${imageName}.jpg")
+        val uploadTask = profilePictureUri.let { spaceRef.putFile(it) }
 
-        val uploadTask = profilePictureUri?.let { spaceRef.putFile(it) }
-
-        uploadTask?.addOnFailureListener {
-            Log.i("Image upload", "Failed")
+        uploadTask.addOnFailureListener {
             val user = User(userId, username, displayName, null)
 
             viewModelScope.launch {
                 db.collection("users").document(userId).set(user)
             }
-        }?.addOnSuccessListener {
-            Log.i("Image upload", "Success")
+            Toast.makeText(
+                context,
+                "Failed to update user, please try again",
+                Toast.LENGTH_SHORT
+            ).show()
+        }.addOnSuccessListener {
             spaceRef.downloadUrl.addOnSuccessListener {
                 val imageDownloadUrl = it.toString()
                 Log.i("Image url", imageDownloadUrl)
@@ -45,12 +64,23 @@ class UserViewModel : ViewModel() {
                 viewModelScope.launch {
                     db.collection("users").document(userId).set(user)
                 }
+                Toast.makeText(
+                    context,
+                    "Successfully updated user",
+                    Toast.LENGTH_SHORT
+                ).show()
             }.addOnFailureListener {
                 val user = User(userId, username, displayName, null)
 
                 viewModelScope.launch {
                     db.collection("users").document(userId).set(user)
                 }
+
+                Toast.makeText(
+                    context,
+                    "Failed to get user picture",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
