@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.forcedsocial.models.Post
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
@@ -140,7 +141,7 @@ class PostViewModel : ViewModel() {
         return withContext(Dispatchers.IO) {
             try {
                 val querySnapshot = db.collection("posts")
-                    .orderBy("timestamp")
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
                     .startAfter(lastVisiblePost!!)
                     .limit(limit)
                     .get()
@@ -162,12 +163,12 @@ class PostViewModel : ViewModel() {
                 val query = if (lastVisiblePostByTopic[topicId] == null) {
                     db.collection("posts")
                         .whereEqualTo("topicId", topicId)
-                        .orderBy("timestamp")
+                        .orderBy("timestamp", Query.Direction.DESCENDING)
                         .limit(limit)
                 } else {
                     db.collection("posts")
                         .whereEqualTo("topicId", topicId)
-                        .orderBy("timestamp")
+                        .orderBy("timestamp", Query.Direction.DESCENDING)
                         .startAfter(lastVisiblePostByTopic[topicId]!!)
                         .limit(limit)
                 }

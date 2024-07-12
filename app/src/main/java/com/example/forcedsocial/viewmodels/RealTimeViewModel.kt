@@ -1,13 +1,10 @@
 package com.example.forcedsocial.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.forcedsocial.models.Post
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.QuerySnapshot
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.Query
 
 class RealTimeViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
@@ -18,11 +15,11 @@ class RealTimeViewModel : ViewModel() {
     ): ListenerRegistration {
         val query = if (topicId != null) {
             db.collection("posts")
-                .orderBy("timestamp")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .whereEqualTo("topicId", topicId)
         } else {
             db.collection("posts")
-                .orderBy("timestamp")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
         }
 
         return query.addSnapshotListener { snapshots, e ->
