@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import com.example.forcedsocial.auth.AuthViewModel
 import com.example.forcedsocial.components.InputTextField
 import com.example.forcedsocial.components.PostCard
+import com.example.forcedsocial.components.UserSearchEntry
 import com.example.forcedsocial.models.Post
 import com.example.forcedsocial.models.User
 import com.example.forcedsocial.viewmodels.SearchViewModel
@@ -29,8 +30,10 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
     val userViewModel: UserViewModel = viewModel()
     val searchViewModel: SearchViewModel = viewModel()
     val query = remember { mutableStateOf("") }
-    val searchResults by searchViewModel.searchResults.collectAsState()
-    val noResultsFound by searchViewModel.noResultsFound.collectAsState()
+    val searchPostResults by searchViewModel.searchPostResults.collectAsState()
+    val noPostResultsFound by searchViewModel.noPostResultsFound.collectAsState()
+    val searchUserResults by searchViewModel.searchUserResults.collectAsState()
+    val noUserResultsFound by searchViewModel.noUserResultsFound.collectAsState()
 
     BottomNavigationLayout(navController, authViewModel) {
         Column(
@@ -53,11 +56,24 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                if (noResultsFound) {
+                if (noPostResultsFound && noUserResultsFound) {
                     Text(text = "No results found", modifier = Modifier.padding(16.dp))
                 } else {
                     LazyColumn {
-                        items(searchResults) { post ->
+                        items(searchUserResults) { user ->
+                            val userId = user.id
+                            val displayName = user.displayName
+                            val profilePictureUrl = user.profilePictureUrl
+                            val profilePictureUri = if (!profilePictureUrl.isNullOrEmpty()) Uri.parse(profilePictureUrl) else null
+
+                            Log.i("USER_IMAGE", profilePictureUri.toString())
+                            UserSearchEntry(
+                                username = displayName,
+                                profilePicture = profilePictureUri,
+                                onClick = { navController.navigate("userProfile/userId=${userId}") }
+                            )
+                        }
+                        items(searchPostResults) { post ->
                             val userId = post.userId
                             val user = remember {
                                 mutableStateOf<User?>(null)
