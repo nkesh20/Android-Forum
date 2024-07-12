@@ -24,7 +24,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel,
     val content = remember { mutableStateOf("") }
     val user = FirebaseAuth.getInstance().currentUser
 
-    val imageUri = remember { mutableStateOf(user?.photoUrl) }
+    var imageUri: Uri? = null
     val context = LocalContext.current
 
     BottomNavigationLayout(navController, authViewModel) {
@@ -42,7 +42,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel,
 
                 RegularImageUpload(
                     onUpload = {
-                        imageUri.value = it
+                        imageUri = it
                     }
                 )
 
@@ -51,7 +51,7 @@ fun CreatePostScreen(navController: NavController, authViewModel: AuthViewModel,
                 Button(onClick = {
                     user?.let {
                         val userId = it.uid
-                        postViewModel.createPost(userId, content.value, imageUri.value, topicId, context)
+                        postViewModel.createPost(userId, content.value, imageUri, topicId, context)
                     }
                 }) {
                     Text(text = "Post")
