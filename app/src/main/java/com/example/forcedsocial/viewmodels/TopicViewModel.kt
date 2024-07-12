@@ -9,6 +9,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -51,10 +52,10 @@ class TopicViewModel : ViewModel() {
         return try {
             val query = if (lastVisibleTopic == null) {
                 db.collection("topics")
-                    .orderBy("timestamp")
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
             } else {
                 db.collection("topics")
-                    .orderBy("timestamp")
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
                     .startAfter(lastVisibleTopic!!)
             }
 
@@ -72,7 +73,7 @@ class TopicViewModel : ViewModel() {
     fun getRealTimeTopics(onUpdate: (List<Topic>) -> Unit): ListenerRegistration {
         val query =
             db.collection("topics")
-                .orderBy("timestamp")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
 
 
         return query.addSnapshotListener { snapshots, e ->
