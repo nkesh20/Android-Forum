@@ -51,7 +51,7 @@ fun TopicsScreen(authViewModel: AuthViewModel, navController: NavController) {
     }
 
     val topicMap = topics.associateBy { it.id }
-    val canCreateTopic = userViewModel.canCreateTopic(authViewModel.currentUser.value?.uid)
+    val canCreateTopic = userViewModel.isModerator(authViewModel.currentUser.value?.uid)
 
     BottomNavigationLayout(navController, authViewModel) {
         Box(modifier = Modifier.fillMaxSize()) {

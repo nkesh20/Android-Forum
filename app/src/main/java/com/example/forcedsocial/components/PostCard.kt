@@ -8,9 +8,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,9 +36,13 @@ fun PostCard(
     userName: String,
     postText: String,
     postImageUri: Uri? = null,
-    onClick: () -> Unit
+    datetime: String = "",
+    onClick: () -> Unit,
+    canDelete: Boolean = false,
+    onDelete: () -> Unit = {}
 ) {
     val context = LocalContext.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,15 +70,58 @@ fun PostCard(
                     placeholder = rememberVectorPainter(image = Icons.Default.Person)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = userName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = userName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = datetime,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (canDelete) {
+                    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
+                    if (showDeleteConfirmation) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteConfirmation = false },
+                            title = { Text("Confirm Deletion") },
+                            text = { Text("Are you sure you want to delete this post?") },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        onDelete()
+                                        showDeleteConfirmation = false
+                                    }
+                                ) {
+                                    Text("Delete")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = { showDeleteConfirmation = false }
+                                ) {
+                                    Text("Cancel")
+                                }
+                            }
+                        )
+                    }
+
+                    IconButton(onClick = { showDeleteConfirmation = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete post",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             val annotatedText = buildAnnotatedString {
                 append(postText)
                 val regex = "(https?://[\\w-]+(\\.[\\w-]+)+(/[#?]?.*)?)".toRegex()

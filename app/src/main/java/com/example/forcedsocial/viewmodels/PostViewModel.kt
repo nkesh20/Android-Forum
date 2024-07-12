@@ -129,10 +129,11 @@ class PostViewModel : ViewModel() {
 
     fun getPostById(postId: String) = db.collection("posts").document(postId).get()
 
-    fun deletePost(postId: String) {
+    fun deletePost(postId: String, commentViewModel: CommentViewModel) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                db.collection("posts").document(postId).delete().await()
+                db.collection("posts").document(postId).delete()
+                    .addOnSuccessListener { commentViewModel.deletePostComments(postId) }
             }
         }
     }

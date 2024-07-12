@@ -19,12 +19,16 @@ import com.example.forcedsocial.auth.AuthViewModel
 import com.example.forcedsocial.components.PostCard
 import com.example.forcedsocial.models.Post
 import com.example.forcedsocial.models.User
+import com.example.forcedsocial.viewmodels.CommentViewModel
+import com.example.forcedsocial.viewmodels.PostViewModel
 import com.example.forcedsocial.viewmodels.RealTimeViewModel
 import com.example.forcedsocial.viewmodels.UserViewModel
 
 @Composable
 fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, topicId: String?) {
     val userViewModel: UserViewModel = viewModel()
+    val postViewModel: PostViewModel = viewModel()
+    val commentViewModel: CommentViewModel = viewModel()
     val realTimeUpdatesViewModel: RealTimeViewModel = viewModel()
     val posts = remember { mutableStateListOf<Post>() }
     val currentUser by authViewModel.currentUser.observeAsState()
@@ -70,7 +74,15 @@ fun PostListScreen(navController: NavController, authViewModel: AuthViewModel, t
                                     postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(
                                         post.imageUrl
                                     ) else null,
-                                    onClick = { navController.navigate("postDiscussion?postId=${post.id}") }
+                                    datetime = post.timestamp?.toDate().toString(),
+                                    onClick = { navController.navigate("postDiscussion?postId=${post.id}") },
+                                    canDelete = userViewModel.isModerator(currentUser?.uid),
+                                    onDelete = {
+                                        postViewModel.deletePost(
+                                            post.id,
+                                            commentViewModel
+                                        )
+                                    }
                                 )
                             }
                         }

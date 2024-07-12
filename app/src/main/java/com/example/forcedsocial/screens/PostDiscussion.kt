@@ -1,7 +1,6 @@
 package com.example.forcedsocial.screens
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,8 +26,6 @@ import com.example.forcedsocial.models.User
 import com.example.forcedsocial.viewmodels.CommentViewModel
 import com.example.forcedsocial.viewmodels.PostViewModel
 import com.example.forcedsocial.viewmodels.UserViewModel
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 
 @Composable
 fun PostDiscussion(postId: String, navController: NavController, authViewModel: AuthViewModel) {
@@ -97,7 +94,10 @@ fun PostDiscussion(postId: String, navController: NavController, authViewModel: 
                             postText = it.content,
                             userImageUri = postUser?.profilePictureUrl?.let { url -> Uri.parse(url) },
                             postImageUri = it.imageUrl?.let { url -> Uri.parse(url) },
-                            onClick = {}
+                            datetime = it.timestamp?.toDate().toString(),
+                            onClick = {},
+                            canDelete = userViewModel.isModerator(currentUser?.uid),
+                            onDelete = { postViewModel.deletePost(postId, commentViewModel) }
                         )
                     }
 
@@ -129,7 +129,10 @@ fun PostDiscussion(postId: String, navController: NavController, authViewModel: 
                                 )
                             },
                             postImageUri = comment.imageUrl?.let { url -> Uri.parse(url) },
-                            onClick = {}
+                            datetime = comment.timestamp?.toDate().toString(),
+                            onClick = {},
+                            canDelete = userViewModel.isModerator(currentUser?.uid),
+                            onDelete = { commentViewModel.deleteComment(comment.id) }
                         )
                     }
                 }

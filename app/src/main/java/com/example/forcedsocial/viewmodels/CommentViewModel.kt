@@ -124,6 +124,25 @@ class CommentViewModel : ViewModel() {
         }
     }
 
+    fun deletePostComments(postId: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    val querySnapshot = db.collection("comments")
+                        .whereEqualTo("postId", postId)
+                        .get()
+                        .await()
+
+                    for (document in querySnapshot.documents) {
+                        document.reference.delete().await()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
     fun getRealTimeCommentsForPost(
         postId: String,
         onUpdate: (List<Comment>) -> Unit
