@@ -30,6 +30,7 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
     val searchViewModel: SearchViewModel = viewModel()
     val query = remember { mutableStateOf("") }
     val searchResults by searchViewModel.searchResults.collectAsState()
+    val noResultsFound by searchViewModel.noResultsFound.collectAsState()
 
     BottomNavigationLayout(navController, authViewModel) {
         Column(
@@ -52,26 +53,32 @@ fun SearchScreen(authViewModel: AuthViewModel, navController: NavController) {
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
+                if (noResultsFound) {
+                    Text(text = "No results found", modifier = Modifier.padding(16.dp))
+                } else {
+                    LazyColumn {
+                        items(searchResults) { post ->
+                            val userId = post.userId
+                            val user = remember {
+                                mutableStateOf<User?>(null)
+                            }
 
-                LazyColumn {
-                    items(searchResults) { post ->
-                        val userId = post.userId
-                        val user = remember {
-                            mutableStateOf<User?>(null)
+                            userViewModel.getUserProfile(userId).addOnSuccessListener {
+                                user.value = it.toObject(User::class.java)
+                            }.addOnFailureListener {
+                                Log.e("Post User", "Error while getting User from post")
+                            }
+
+                            PostCard(
+                                userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName
+                                    ?: "" else post.userId,
+                                postText = post.content,
+                                userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(
+                                    user.value?.profilePictureUrl
+                                ) else null,
+                                postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null
+                            )
                         }
-
-                        userViewModel.getUserProfile(userId).addOnSuccessListener {
-                            user.value = it.toObject(User::class.java)
-                        }.addOnFailureListener {
-                            Log.e("Post User", "Error while getting User from post")
-                        }
-
-                        PostCard(
-                            userName = if (!user.value?.displayName.isNullOrEmpty()) user.value?.displayName?: "" else post.userId,
-                            postText = post.content,
-                            userImageUri = if (!user.value?.profilePictureUrl.isNullOrEmpty()) Uri.parse(user.value?.profilePictureUrl) else null,
-                            postImageUri = if (!post.imageUrl.isNullOrEmpty()) Uri.parse(post.imageUrl) else null
-                        )
                     }
                 }
             }
