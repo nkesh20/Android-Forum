@@ -58,7 +58,6 @@ fun AuthScreen(
             .createSignInIntentBuilder()
             .setAvailableProviders(providers)
             .setIsSmartLockEnabled(false) // Disable automatic sign-in
-            .setTheme(R.style.LoginTheme)
             .build()
         LaunchedEffect(Unit) {
             signInLauncher.launch(signInIntent)
