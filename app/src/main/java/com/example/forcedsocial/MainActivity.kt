@@ -38,6 +38,7 @@ import com.example.forcedsocial.screens.ProfileScreen
 import com.example.forcedsocial.screens.PostListScreen
 import com.example.forcedsocial.screens.SearchScreen
 import com.example.forcedsocial.screens.TopicsScreen
+import com.example.forcedsocial.screens.UserProfileScreen
 import com.example.forcedsocial.ui.theme.ForcedSocialTheme
 import com.google.firebase.auth.FirebaseAuth
 
@@ -129,6 +130,18 @@ fun MainScreen(viewModel: AuthViewModel) {
                 navController = navController,
                 authViewModel = viewModel
             )
+        }
+        composable(
+            "userProfile/userId={userId}",
+            arguments = listOf(
+                navArgument(name = "postId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) {backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            UserProfileScreen(userId = userId, navController = navController, authViewModel = viewModel)
         }
     }
 }
