@@ -21,13 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.forcedsocial.auth.AuthScreen
 import com.example.forcedsocial.auth.AuthViewModel
 import com.example.forcedsocial.auth.AuthViewModelFactory
 import com.example.forcedsocial.screens.CreatePostScreen
+import com.example.forcedsocial.screens.PostDiscussion
 import com.example.forcedsocial.screens.ProfileScreen
 import com.example.forcedsocial.screens.PostListScreen
 import com.example.forcedsocial.screens.SearchScreen
@@ -73,6 +76,14 @@ fun MainScreen(viewModel: AuthViewModel) {
         composable("search") { SearchScreen(viewModel, navController) }
         composable("profile") { ProfileScreen(viewModel, navController) }
         composable("createPost") { CreatePostScreen(navController, viewModel) }
+        composable(route = "postDiscussion?postId={postId}", listOf(
+            navArgument(name = "postId") {
+                type = NavType.StringType
+                defaultValue = ""
+            }
+        )) { backStackEntry ->
+            PostDiscussion()
+        }
     }
 }
 
